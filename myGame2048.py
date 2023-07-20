@@ -130,20 +130,26 @@ def drowBoard():
     if isGameOver:
         printGameOver()
 
-def rotateLeft():
+#[[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+def rotateCounterclockwise():
     global game_board
-    game_board = np.array(list(zip(*game_board))[::-1])
-    game_board= game_board
-def rotateRight():
+    #zip (1, 4, 7) (2, 5, 8) (3, 6, 9)
+    #list [(1, 4, 7), (2, 5, 8), (3, 6, 9)]
+    #reversed (3, 6, 9) (2, 5, 8) (1, 4, 7)
+    #result [[3, 6, 9], [2, 5, 8], [1, 4, 7]]
+    game_board = [list(l) for l in reversed(list(zip(*game_board)))]
+def rotateClockwise():
     global game_board
-    game_board = np.array(list(zip(*game_board[::-1])))
-    game_board= game_board
+    #reversed [7, 8, 9] [4, 5, 6] [1, 2, 3]
+    #zip (7, 4, 1) (8, 5, 2) (9, 6, 3)
+    #result [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+    game_board = [list(l) for l in zip(*reversed(game_board))]
 
-def rotateFlip():
+def rotateDouble():
     global game_board
-    #todo find better way
-    rotateLeft()
-    rotateLeft()
+    #reversed [7, 8, 9] [4, 5, 6] [1, 2, 3]
+    #result [[9, 8, 7], [6, 5, 4], [3, 2, 1]]
+    game_board = [list(reversed(l)) for l in reversed(game_board)]
 
 def doMoveAndSum():
     global game_board
@@ -182,19 +188,19 @@ def moveBoard(direction):
         doMoveAndSum()
     elif event.key == pygame.K_RIGHT:
         print("right")
-        rotateFlip()
+        rotateDouble()
         doMoveAndSum()
-        rotateFlip()
+        rotateDouble()
     elif event.key == pygame.K_UP:
         print("up")
-        rotateLeft()
+        rotateCounterclockwise()
         doMoveAndSum()
-        rotateRight()
+        rotateClockwise()
     elif event.key == pygame.K_DOWN:
         print("down")
-        rotateRight()
+        rotateClockwise()
         doMoveAndSum()
-        rotateLeft()
+        rotateCounterclockwise()
     
 initBoard()
 

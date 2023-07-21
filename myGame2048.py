@@ -27,19 +27,15 @@ game_board = [[0, 0, 0, 0], # 0, 1, 2, 3
 isGameOver = False
 isGameSuccess = False
 
-def checkForEmptyPositions():
+def findEmptyPositions():
     global game_board
-    canAddNew = False
+    emptyPos = []
     for row in range(4):
         for col in range(4):
-            if(game_board[col][row] == 0):
-                canAddNew = True
-                break
-        
-        if canAddNew: 
-            break 
+            if(game_board[row][col] == 0):
+                emptyPos.append(row*4 + col)
 
-    return canAddNew
+    return emptyPos
 
 def bordIsBlocked():
     global game_board
@@ -64,26 +60,19 @@ def addRandomPositionNumber():
     global isGameOver
     global isGameSuccess
 
-    #todo optimize for when bord become with a few number of possible positions to add new number
-    canAddNewNumber = checkForEmptyPositions()
-    if(canAddNewNumber):
-        while canAddNewNumber:
-            position = random.randint(0, 15)
-            number = random.randint(1, 2)
-            print(position)
-            print(number)
-            if(position > 11 and game_board[3][position - 12] == 0):
-                game_board[3][position - 12] = number * 2
-                canAddNewNumber = False
-            elif(position <= 11 and position > 7 and game_board[2][position - 8] == 0):
-                game_board[2][position - 8] = number * 2
-                canAddNewNumber = False
-            elif(position <= 7 and position > 3 and game_board[1][position - 4] == 0):
-                game_board[1][position - 4] = number * 2
-                canAddNewNumber = False
-            elif(position <= 3 and game_board[0][position] == 0):
-                game_board[0][position] = number * 2
-                canAddNewNumber = False
+    # get list of available positions like  t = [1, 2, 3]
+    t = findEmptyPositions()
+    if(len(t) > 0):
+        position = random.choice(t)
+        number = random.randint(1, 2) * 2
+        if(position > 11):
+            game_board[3][position - 12] = number
+        elif(position > 7):
+            game_board[2][position - 8] = number
+        elif(position > 3):
+            game_board[1][position - 4] = number
+        else:
+            game_board[0][position] = number
     
     if(bordIsBlocked()):
         isGameOver = True
@@ -157,47 +146,49 @@ def doMoveAndSum():
     global isGameSuccess
 
     #sum number and move
+    didSum = False
+    didMove = False
     for row in range(4):
-        column = [num for num in game_board[row] if num > 0]
-        if(len(column) > 0):
-            cLen = len(column) - 1
+        colWithNum = [num for num in game_board[row] if num > 0]
+        if(len(colWithNum) > 0):
+            cLen = len(colWithNum) - 1
             for i in range(cLen):
-                if(i < cLen):
-                    if(column[i] == column[i + 1]):
-                        column[i] = column[i] + column[i + 1]
-                        column[i + 1] = 0
-                        if(column[i] == 2048):
-                            isGameOver = True
-                            isGameSuccess = True
-                            printGameOver()
+                if(colWithNum[i] == colWithNum[i + 1]):
+                    colWithNum[i] = colWithNum[i] + colWithNum[i + 1]
+                    didSum = True
+                    if(colWithNum[i] == 2048):
+                        isGameOver = True
+                        isGameSuccess = True
+                        printGameOver()
+                    
+                    colWithNum[i + 1] = 0
+                    i = i + 1
 
-            column = [num for num in column if num > 0]
-            cLen = len(column) - 1
+            colWithNum = [num for num in colWithNum if num > 0]
+            cLen = len(colWithNum) - 1
             for i in range(4):
                 if(i > cLen):
-                    column = column + [0]
+                    colWithNum.append(0)
 
-            game_board[row] = column
+            if(game_board[row] != colWithNum):
+                didMove = True
+                game_board[row] = colWithNum
 
-    #addRandomPositionNumber
-    addRandomPositionNumber()
+    if(didSum or didMove):
+        addRandomPositionNumber()
 
 def moveBoard(direction):
     if event.key == pygame.K_LEFT:
-        print("left")
         doMoveAndSum()
     elif event.key == pygame.K_RIGHT:
-        print("right")
         rotateDouble()
         doMoveAndSum()
         rotateDouble()
     elif event.key == pygame.K_UP:
-        print("up")
         rotateCounterclockwise()
         doMoveAndSum()
         rotateClockwise()
     elif event.key == pygame.K_DOWN:
-        print("down")
         rotateClockwise()
         doMoveAndSum()
         rotateCounterclockwise()

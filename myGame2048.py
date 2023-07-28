@@ -64,7 +64,7 @@ def addRandomPositionNumber():
     t = findEmptyPositions()
     if(len(t) > 0):
         position = random.choice(t)
-        number = random.randint(1, 2) * 2
+        number = random.choice([2, 2, 2, 2, 2, 4])
         if(position > 11):
             game_board[3][position - 12] = number
         elif(position > 7):
@@ -126,13 +126,14 @@ def rotateCounterclockwise():
     #list [(1, 4, 7), (2, 5, 8), (3, 6, 9)]
     #reversed (3, 6, 9) (2, 5, 8) (1, 4, 7)
     #result [[3, 6, 9], [2, 5, 8], [1, 4, 7]]
-    game_board = [list(l) for l in reversed(list(zip(*game_board)))]
+    game_board = [list(l) for l in reversed(list(zip(game_board[0], game_board[1], game_board[2], game_board[3])))]
 def rotateClockwise():
     global game_board
     #reversed [7, 8, 9] [4, 5, 6] [1, 2, 3]
     #zip (7, 4, 1) (8, 5, 2) (9, 6, 3)
     #result [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
-    game_board = [list(l) for l in zip(*reversed(game_board))]
+    game_board = reversed(game_board)
+    game_board = [list(l) for l in zip(next(game_board), next(game_board), next(game_board), next(game_board))]
 
 def rotateDouble():
     global game_board
